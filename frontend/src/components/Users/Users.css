@@ -1,0 +1,59 @@
+.formBox {
+	display: block;
+	width: 50rem;
+	margin: 0 auto;
+	font-size: 1.6rem;
+	margin-top: 4rem;
+}
+.formBox .formBox__label {
+	display: block;
+	font-size: 1.8rem;
+	margin-bottom: 1rem;
+}
+.formBox .formBox__input {
+	display: block;
+	width: 100%;
+	padding: 0.7rem 1rem;
+	margin-bottom: 1.5rem;
+	border-radius: 0.3rem;
+	border: 0.1rem solid #eee;
+	color: rgb(34, 33, 33);
+}
+.formBox .formBox__input:last-of-type {
+	margin-bottom: 1.5rem;
+}
+.formBox .formBox__input:focus {
+	outline: none;
+	background: #eee;
+}
+.formBox .formBox__button {
+	font-size: 1.8rem;
+	padding: 1rem 3rem;
+	background-color: orange;
+	border: none;
+}
+.formBox .formBox__button:hover {
+	background-color: rgb(226, 111, 34);
+	color: white;
+}
+
+.usersList {
+	list-style: none;
+	padding: 1rem;
+	width: 70rem;
+}
+.usersList__item {
+	margin-bottom: 1rem;
+	padding: 1rem;
+}
+.usersList__item {
+	margin-bottom: 1rem;
+	padding: 1rem;
+}
+.userList__name {
+	font-size: 1.6rem;
+	text-transform: capitalize;
+}
+.userList__age {
+	font-size: 2.2rem;
+}
