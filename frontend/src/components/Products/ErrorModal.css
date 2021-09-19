@@ -1,0 +1,31 @@
+.errorModal {
+	border-radius: 1rem;
+}
+.errorModal__header {
+	background: purple;
+	color: #ffffff;
+}
+.errorModal__title {
+	font-size: 2.2rem;
+	padding: 2rem;
+}
+.errorModal__content {
+	padding: 2rem;
+}
+.errorModal__message {
+	font-size: 1.6rem;
+}
+.errorModal__footer {
+	text-align: end;
+	padding: 0 2rem 2rem 0;
+	overflow: hidden;
+}
+.errorModal__button {
+	background: purple;
+	border: none !important;
+	transform: none !important;
+}
+.errorModal__button:hover {
+	background: rgb(82, 1, 82);
+	color: white;
+}

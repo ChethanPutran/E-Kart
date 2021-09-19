@@ -1,62 +1,54 @@
-import React,{Component} from 'react';
-import './wishlist.css';
-import ProductCondensed from '../product-condensed/product-condensed';
-import NotificationServices,{NOTIF_WISHLIST_CHANGED} from '../services/notification';
+import { ProductBox } from '../Products/Product';
+import Card from '../UI/Card/Card';
+import Modal from '../UI/Modal/Modal';
+import Button from '../UI/Button/Button';
 
+const Wishlist = (props) => {
+	const products = [
+		{
+			id: 'shhs',
+			productName: 'Milkibar',
+			price: 45,
+			description: 'KSja dajvvb vjads avhk',
+		},
+		{
+			id: 'sh21hs',
+			productName: 'Chocobar',
+			price: 45,
+			description: 'KSja dajvvb vjads avhk',
+		},
+		{
+			id: 'sh12hs',
+			productName: 'Diarymilk',
+			price: 45,
+			description: 'KSja dajvvb vjads avhk',
+		},
+	];
 
-let ns = new NotificationServices();
-
-
-class WishList extends Component{
-	constructor(props){
-		super(props);
-		this.state = { wishList:[]};					 
-								 
-		this.createWishList = this.createWishList.bind(this);
-		this.onWishListChanged = this.onWishListChanged.bind(this);
-		this.componentDidMount = this.componentDidMount.bind(this);
-		this.componentWillUnmount = this.componentWillUnmount.bind(this);
-	}
-	
-	componentDidMount(){
-		ns.addObserver(NOTIF_WISHLIST_CHANGED,this,this.onWishListChanged);
-		
-	}
-	
-	componentWillUnmount(){
-		ns.removeObserver(this,NOTIF_WISHLIST_CHANGED);
-		
-	}
-	
-	onWishListChanged(newWishList){
-		this.setState( { wishList : newWishList });
-		
-	}
-	
-	createWishList = () =>{
-		const list =this.state.wishList.map((product) =>
-   			<ProductCondensed product={product} key={product._id}/>
-		 );
-		return (list);									
-											
-		
-	}
-	render(){
-		return(
-			<div className="card">
-				
-				<div className="card-block">
-					<h4 className="card-title">Wish List</h4>
-					<ul className="list-group">
-						{this.createWishList()}
-					</ul>
-					
-				</div>
-
-
+	const wishlistItems = products.map((item) => (
+		<li key={item.id}>
+			<div className='wishlist__item'>
+				<ProductBox
+					name={item.productName}
+					price={item.price}
+					description={item.description}
+				/>
 			</div>
-			);
-	}
-}
+		</li>
+	));
 
-export default WishList;
+	return (
+		<Modal backdropHandler={props.closeWishlist}>
+			<Card>
+				<div className='wishlist'>
+					<div className='wishlist__items'>
+						<ul>{wishlistItems}</ul>
+					</div>
+					<Button onClick={props.closeWishlist}>Close</Button>
+				</div>
+			</Card>
+		</Modal>
+	);
+};
+
+export default Wishlist;

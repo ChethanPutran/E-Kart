@@ -1,5 +1,5 @@
 // import styled from "styled-components";
-import "./Button.css";
+import './Button.css';
 // const Button = styled.button`
 //   display: inline-block;
 //   padding: 7px 30px;
@@ -19,8 +19,10 @@ import "./Button.css";
 //   }
 // `;
 const Button = (props) => {
-  let classes = "btn " + props.className;
-  return <button className={classes}>{props.children}</button>;
+	const data = { ...props };
+	data.className = 'btn ' + props.className;
+
+	return <button {...data}></button>;
 };
 
 export default Button;

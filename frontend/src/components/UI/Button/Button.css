@@ -1,17 +1,31 @@
 .btn {
 	display: inline-block;
 	padding: 7px 30px;
-	border: none;
 	outline: none;
-	background-color: rgb(49, 211, 8);
 	border-radius: 10px;
 	color: #ffffff;
+	transition: all 0.3s;
+	border: 1px solid transparent;
+	cursor: pointer;
+	background: orange;
+	font-size: 1.6rem;
 }
 .btn:focus {
 	outline: none;
 }
 .btn:hover {
-	background-color: white;
-	color: rgb(49, 211, 8);
-	border: 1px solid rgb(49, 211, 8);
+	background-color: rgb(255, 136, 0);
+	color: rgb(255, 255, 255);
+	border: 0.1rem solid transparent;
+	transform: translateY(-0.3rem);
+	box-shadow: 0.4rem 0.4rem 1rem rgba(0, 0, 0, 0.4);
+}
+.btn:focus {
+	transform: translateY(0.3rem);
+}
+.btn:disabled {
+	color: rgba(0, 0, 0, 0.4);
+	border: 1px solid rgba(0, 0, 0, 0.4) !important;
+	background: #eee !important;
+	pointer-events: none;
 }

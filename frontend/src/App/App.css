@@ -1,0 +1,15 @@
+.app {
+	background: #fff;
+	text-align: center;
+	height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	font-size: 1.6rem;
+	width: 100%;
+	background: #fff;
+}
+.app__warning {
+	padding: 2rem;
+	margin-top: 2rem;
+	font-size: 2rem;
+}

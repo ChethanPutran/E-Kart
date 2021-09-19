@@ -1,29 +1,133 @@
-import { useState } from 'react';
-import AddUser from '../components/Users/AddUser';
-import UsersList from '../components/Users/UsersList';
-
-const initialUsers = [
-	{ id: '45fshgjhbia6tfa4u', username: 'Rock', age: 23 },
-	{ id: '3232shgjh232tfa4u', username: 'Joker', age: 21 },
-	{ id: '4232shgjhbia6tfa4u', username: 'Motu', age: 24 },
-	{ id: '45fs2332ia6tfa4u', username: 'Sheetal', age: 27 },
-];
-
+import { useCallback, useEffect, useRef, useState } from 'react';
+import AddProduct from '../components/Products/AddProduct';
+import Hero from '../components/Layout/Hero';
+import Cart from '../components/Cart/Cart';
+import './App.css';
+import { AuthContextProvider } from '../store/auth-context';
+import { CartContextProvider } from '../components/Cart/cart-context';
+import ProductFinder from '../components/Products/ProducrFinder';
+import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary';
+import HttpService from '../components/Services/http-services';
+import { Route } from 'react-router-dom';
+import Navigation from '../components/Navigation/Navigation';
+import ProductDetails from '../components/Products/ProductDetails';
+import AuthContext from '../store/auth-context';
 export default function App() {
-	const [users, setUsers] = useState(initialUsers);
-	const addUser = (username, age) => {
-		//Updating users
-		setUsers((previousUsers) => {
-			return [
-				...previousUsers,
-				{ id: Math.random(), username, age: +age },
-			];
+	const [products, setProducts] = useState([]);
+	const [event, setEvent] = useState({
+		isLoading: false,
+		message: '',
+	});
+
+	const getProducts = useCallback(async () => {
+		setEvent(() => {
+			return {
+				isLoading: true,
+				message: 'Loading...',
+			};
+		});
+		setError(null);
+		try {
+			const httpService = new HttpService();
+			const data = await httpService.getProducts();
+
+			setProducts(data);
+		} catch (err) {
+			console.log(err);
+			setError(err.message);
+		}
+		setEvent(false);
+	}, []);
+
+	//Fetching the product at the bigining
+	useEffect(() => {
+		getProducts();
+	}, [getProducts]);
+
+	const addProduct = async (product) => {
+		console.log(product);
+		//Updating products
+		setEvent(() => {
+			return {
+				isLoading: true,
+				message: 'Creating product...',
+			};
+		});
+		try {
+			const httpService = new HttpService();
+			const data = await httpService.postProduct(product);
+			console.log(data);
+			setProducts((previousProducts) => {
+				return [...previousProducts, { data }];
+			});
+		} catch (err) {
+			console.log(err);
+			setError(err.message);
+		}
+		setEvent(() => {
+			return {
+				isLoading: false,
+				message: '',
+			};
 		});
 	};
+
+	const buyProduct = () => {
+		console.log('Buying product...');
+	};
+	const [error, setError] = useState(null);
+	const warningRef = useRef(null);
+
 	return (
-		<div>
-			<AddUser addUser={addUser} />
-			<UsersList users={users} />
+		<div className='app'>
+			<AuthContextProvider items={products}>
+				<ErrorBoundary>
+					<CartContextProvider products={products}>
+						<Navigation />
+
+						<Route path='/cart'>
+							<Cart buyProduct={buyProduct} />
+						</Route>
+					</CartContextProvider>
+					<Route path='/home'>
+						<Hero />
+						{error && (
+							<p className='snackbar'>
+								Something went wrong. {error}
+							</p>
+						)}
+					</Route>
+
+					<AuthContext.Consumer>
+						{(context) => {
+							return (
+								context.isAdmin && (
+									<Route path='/addProduct'>
+										<AddProduct addProduct={addProduct} />
+									</Route>
+								)
+							);
+						}}
+					</AuthContext.Consumer>
+					<Route path='/products/:id' strict={true}>
+						<ProductDetails />
+					</Route>
+
+					<Route path='/products'>
+						{!event.isLoading ? (
+							products.length > 0 ? (
+								<ProductFinder products={products} />
+							) : (
+								<p className='app__warning' ref={warningRef}>
+									No products found!!!
+								</p>
+							)
+						) : (
+							<p className='snackbar'>{event.message}</p>
+						)}
+					</Route>
+				</ErrorBoundary>
+			</AuthContextProvider>
 		</div>
 	);
 }
