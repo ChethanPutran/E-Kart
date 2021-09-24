@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Button from '../UI/Button/Button';
+import Button from '../../UI/Button/Button';
 
 const ProductForm = (props) => {
 	const [quantity, setQuantity] = useState(1);
@@ -25,7 +25,7 @@ const ProductForm = (props) => {
 			return;
 		}
 		if (event.nativeEvent.submitter.id === 'cartBtn') {
-			props.cartHandler(quantity);
+			props.onAddItemToCart(quantity);
 		} else if (event.nativeEvent.submitter.id === 'wishlistBtn') {
 			props.wishListHandler();
 		}

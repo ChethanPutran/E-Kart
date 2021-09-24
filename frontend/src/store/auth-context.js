@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 const AuthContext = React.createContext({
 	isLoggedIn: false,
-	isAdmin: false,
+	isAdmin: true,
 	onLogout: () => {},
 	onLogin: (username, password) => {},
-	items: [],
+	cartChanged: () => {},
 });
 
 export const AuthContextProvider = (props) => {
@@ -19,6 +19,7 @@ export const AuthContextProvider = (props) => {
 		localStorage.setItem('isLoggedIn', 'true');
 		setIsLoggedIn(true);
 	};
+
 	return (
 		<AuthContext.Provider
 			value={{
@@ -26,7 +27,6 @@ export const AuthContextProvider = (props) => {
 				isAdmin: true,
 				onLogout: logoutHandler,
 				onLogin: loginHandler,
-				items: props.items,
 			}}>
 			{props.children}
 		</AuthContext.Provider>

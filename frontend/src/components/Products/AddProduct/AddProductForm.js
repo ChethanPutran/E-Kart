@@ -1,10 +1,11 @@
-import Card from '../UI/Card/Card';
-import Button from '../UI/Button/Button';
-import './Products.css';
-import { useReducer, useState, useContext } from 'react';
-import AuthContext from '../../store/auth-context';
-import './ErrorModal.css';
-import Modal from '../UI/Modal/Modal';
+import Card from '../../UI/Card/Card';
+import Button from '../../UI/Button/Button';
+import { useContext, useReducer, useState } from 'react';
+import AuthContext from '../../../store/auth-context';
+import ErrorModal from './ErrorModal/ErrorModal';
+import { Prompt } from 'react-router-dom';
+import LoadingSpinner from '../../UI/LoadingSpinner/LoadingSpinner';
+import './AddProductForm.css';
 
 const formErrorReducer = (state, action) => {
 	if (action.type === 'PRODUCT_NAME_INPUT') {
@@ -12,7 +13,7 @@ const formErrorReducer = (state, action) => {
 			name: action.value,
 			description: state.description,
 			price: state.price,
-			isValidName: action.value.length > 4,
+			isValidName: action.value.length >= 3,
 			isValidDescription: state.isValidDescription,
 			isValidPrice: state.isValidPrice,
 		};
@@ -46,30 +47,10 @@ const formErrorReducer = (state, action) => {
 	};
 };
 
-const ErrorModal = (props) => {
-	return (
-		<Modal onClick={props.onClick}>
-			<div className='errorModal'>
-				<header className='errorModal__header'>
-					<h3 className='errorModal__title'>{props.error.title}</h3>
-				</header>
-				<div className='errorModal__content'>
-					<p className='errorModal__message'>{props.error.message}</p>
-				</div>
-				<footer className='errorModal__footer'>
-					<Button
-						className='errorModal__button'
-						onClick={props.onClick}>
-						Ok
-					</Button>
-				</footer>
-			</div>
-		</Modal>
-	);
-};
-
-const AddProduct = (props) => {
+export default function AddProductForm(props) {
+	const context = useContext(AuthContext);
 	const [error, setError] = useState();
+	const [isEntereing, setIsEntering] = useState(false);
 
 	const [formState, dispatchFormInput] = useReducer(formErrorReducer, {
 		name: '',
@@ -80,12 +61,17 @@ const AddProduct = (props) => {
 		isValidPrice: null,
 	});
 
+	const formFousedHandler = () => {
+		setIsEntering(true);
+	};
+	const finishLoading = () => {
+		setIsEntering(false);
+	};
 	const addProductHandler = (event) => {
 		event.preventDefault();
 		const productname = formState.name.trim();
 		const description = formState.description.trim();
 		const price = formState.price;
-
 		if (!description || !productname.length === 0) {
 			setError({
 				title: 'Invalid input!',
@@ -93,7 +79,7 @@ const AddProduct = (props) => {
 			});
 			return;
 		}
-		if (productname.length < 4) {
+		if (productname.length < 3) {
 			setError({
 				title: 'Invalid productname!',
 				message: 'Please enter a valid productname.',
@@ -108,14 +94,13 @@ const AddProduct = (props) => {
 			return;
 		}
 
-		if (price < 0) {
+		if (price <= 0) {
 			setError({
 				title: 'Invalid price!',
 				message: 'Please enter a valid price(>0).',
 			});
 			return;
 		}
-
 		props.addProduct({ name: productname, description, price });
 	};
 
@@ -141,15 +126,27 @@ const AddProduct = (props) => {
 			value: event.target.value,
 		});
 	};
-
-	const context = useContext(AuthContext);
 	return (
 		<>
-			{!context.isLoggedIn ? (
+			<Prompt
+				when={isEntereing}
+				message={() =>
+					'Are you sure you want to leave? All your entered data will be lost!'
+				}
+			/>
+			{props.isLoading && (
+				<div className='loading'>
+					<LoadingSpinner />
+				</div>
+			)}
+			{context.isAdmin ? (
 				error ? (
 					<ErrorModal error={error} onClick={clearError} />
 				) : (
-					<form onSubmit={addProductHandler} className='formBox'>
+					<form
+						onSubmit={addProductHandler}
+						className='formBox'
+						onFocus={formFousedHandler}>
 						<label htmlFor='productname' className='formBox__label'>
 							Product name
 						</label>
@@ -166,10 +163,11 @@ const AddProduct = (props) => {
 						<label htmlFor='description' className='formBox__label'>
 							Description
 						</label>
-						<input
+
+						<textarea
 							type='text'
 							id='description'
-							className={`formBox__input ${
+							className={`formBox__input description ${
 								formState.isValidDescription === false
 									? 'inValid'
 									: ''
@@ -194,24 +192,19 @@ const AddProduct = (props) => {
 							onChange={setPriceHandler}
 						/>
 						<div className='formBox__btnBox'>
-							<Button className='formBox__button'>
-								Add Product
-							</Button>
 							<Button
 								className='formBox__button'
-								onClick={props.closeAddProductModal}>
-								Close
+								onClick={finishLoading}>
+								Add Product
 							</Button>
 						</div>
 					</form>
 				)
 			) : (
 				<Card className='posCenter'>
-					<h1 className='txtCenter'>Only Admin can add products</h1>
+					<h2 className='txtCenter'>Only Admin can add products</h2>
 				</Card>
 			)}
 		</>
 	);
-};
-
-export default AddProduct;
+}

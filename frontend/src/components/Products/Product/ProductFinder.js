@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Fragment } from 'react/cjs/react.development';
-import Card from '../UI/Card/Card';
+import Card from '../../UI/Card/Card';
 import ProductsList from './ProductsList';
-import cartContext from '../Cart/cart-context';
+import cartContext from '../../Cart/cart-context';
 
 class ProductFinder extends Component {
 	//Using context

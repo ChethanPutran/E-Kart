@@ -4,58 +4,6 @@
 	width: 100%;
 }
 
-.formBox {
-	display: block;
-	width: 50rem;
-	margin: 0 auto;
-	font-size: 1.6rem;
-	margin-top: 4rem;
-}
-.formBox .formBox__label {
-	display: block;
-	font-size: 1.8rem;
-	margin-bottom: 1rem;
-}
-.formBox .formBox__input {
-	display: block;
-	width: 100%;
-	padding: 0.7rem 1rem;
-	margin-bottom: 1.5rem;
-	border-radius: 0.3rem;
-	border: 0.1rem solid #eee;
-	color: rgb(34, 33, 33);
-}
-.formBox .formBox__input:last-of-type {
-	margin-bottom: 1.5rem;
-}
-.formBox .formBox__input:focus {
-	outline: none;
-	background: #eee;
-}
-
-.formBox .formBox__input.inValid {
-	border: 0.1rem solid rgb(240, 67, 67);
-	background: rgba(201, 114, 114, 0.3);
-}
-.formBox .formBox__input.inValid:focus {
-	background: rgba(201, 114, 114, 0.3);
-}
-.formBox .formBox__button {
-	font-size: 1.8rem;
-	padding: 1rem 3rem;
-	background-color: orange;
-	margin-right: 3rem;
-}
-.formBox .formBox__btnBox {
-	display: flex;
-	justify-content: flex-end;
-}
-
-.formBox .formBox__button:hover {
-	background-color: rgb(226, 111, 34);
-	border: 1px solid transparent;
-	color: white;
-}
 .products__card {
 	background: rgba(255, 255, 255, 0.9);
 	margin: 0 auto;
@@ -84,6 +32,12 @@
 	flex-wrap: wrap;
 	box-sizing: border-box;
 	align-items: center;
+}
+.sortButton__box {
+	padding: 1.5rem;
+	border-bottom: 0.1rem solid rgb(128, 121, 121);
+	margin-bottom: 3rem;
+	text-align: start;
 }
 .product__imageBox {
 	display: flex;
@@ -143,6 +97,10 @@
 
 .posCenter {
 	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	width: 70rem;
 	margin: 0 auto;
 }
@@ -263,10 +221,32 @@
 	left: 50%;
 	font-size: 1.6rem;
 	padding: 1rem;
-	animation: moveUp 1.2s ease-in;
-	transform: translate(-50%, -50%);
+	animation: moveDown 1.5s, stay 1.5s 1.5s, moveUp 1.2s 3s;
+	transform: translateX(-50%);
+	opacity: 0;
 }
 @keyframes moveUp {
+	0% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, -10rem);
+	}
+}
+@keyframes stay {
+	0% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes moveDown {
 	0% {
 		opacity: 0;
 		transform: translate(-50%, -10rem);

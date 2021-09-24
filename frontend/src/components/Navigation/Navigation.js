@@ -1,16 +1,20 @@
 import './Navigation.css';
 import { NavLink } from 'react-router-dom';
-// import CartIcon from '../Cart/Icons/CartIcon';
-import { useContext } from 'react';
-import CartContext from '../Cart/cart-context';
+import { useContext, useState } from 'react';
 import AuthContext from '../../store/auth-context';
+import React from 'react';
+
 const Navigation = (props) => {
-	const cartContext = useContext(CartContext);
 	const authContext = useContext(AuthContext);
-	const noCartItems = cartContext.items.length;
+	const [size, setSize] = useState(0);
+	useState(() => {
+		const { size } = props;
+		setSize(size);
+	}, [size]);
+	console.log('Nav running');
 
 	return (
-		<nav className='nav'>
+		<nav className='nav' ref={props.cartBtn}>
 			<h1 className='nav__logoName'>CKart</h1>
 			<ul className='nav__list'>
 				<li className='nav__item'>
@@ -47,14 +51,14 @@ const Navigation = (props) => {
 						</NavLink>
 					</li>
 				)}
-				<li className='nav__item' ref={cartContext.cartBtn}>
+				<li className='nav__item'>
 					<NavLink
 						to='/cart'
 						className='nav__link'
 						activeClassName='nav__link__active'>
 						<span className='nav__cartBtn__content'>Cart</span>
 						<span className='nav__cartBtn__itemNum'>
-							{noCartItems}
+							{props.size ? props.size : 0}
 						</span>
 					</NavLink>
 				</li>
