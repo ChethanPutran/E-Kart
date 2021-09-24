@@ -3,7 +3,7 @@ require('./model/connection');
 const app = express();
 
 const Product = require('./model/product');
-const WishList = require('./model/wishlist');
+const Cart = require('./model/cart');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -13,58 +13,151 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.post('/product', function (request, response) {
-	console.log(request.body);
-	const product = new Product(request.body);
+app.post('/product', function (req, res) {
+	console.log(req.body);
+	const product = new Product(req.body);
 	product.save(function (error, savedProduct) {
 		if (error) {
-			response.status(500).send({ error: 'Could not save the product' });
+			res.status(500).send({
+				error: 'Could not save the product',
+				status: 'failure',
+			});
 		} else {
-			response.status(200).send(savedProduct);
+			res.status(200).send({ data: savedProduct, status: 'sucess' });
 		}
 	});
 });
 
-app.get('/products', function (request, response) {
-	console.log('New request');
+app.get('/products', function (req, res) {
+	console.log('New req');
 	Product.find({}, function (error, products) {
 		if (error) {
-			response.status(500).send({ error: 'Could not fetch the product' });
+			res.status(500).send({
+				status: 'failure',
+				error: 'Could not fetch the product',
+			});
 		} else {
-			response.status(200).send(products);
+			res.status(200).send(products);
 		}
 	});
 });
-
-app.post('/wishlist', function (request, response) {
-	const wishList = new WishList();
-	wishList.title = request.body.title;
-	wishList.save(function (error, newWishList) {
-		if (error) {
-			response.status(500).send({ error: 'Could not create wishlist' });
+app.get('/cart/size', async (req, res) => {
+	try {
+		const carts = await Cart.find({});
+		if (carts && carts.length > 0) {
+			res.status(200).send({ size: carts.length, status: 'sucess' });
 		} else {
-			response.status(200).send(newWishList);
+			res.status(404).send({ status: 'failure', error: 'No cart found' });
 		}
-	});
+	} catch (err) {
+		res.status(500).send({
+			status: 'failure',
+			error: 'Something went wrong',
+		});
+	}
 });
 
-app.put('/wishlist/product/add', function (request, response) {
-	Product.findOne({ _id: request.body.productId }, function (error, product) {
+app.post('/cart', async function (req, res) {
+	const item = await Cart.findOne({ _id: req.body._id });
+
+	if (item) {
+		const preQuantity = item.quantity;
+		item.quantity = preQuantity + req.body.quantity;
+		try {
+			const dat = await Cart.updateOne(
+				{ _id: req.body._id },
+				{ quantity: req.body.quantity }
+			);
+			res.status(201).send({ status: 'sucess' });
+		} catch (err) {
+			console.log(err);
+			res.status(500).send({
+				status: 'failure',
+				error: err.message,
+			});
+		}
+	} else {
+		try {
+			const cart = await new Cart({
+				_id: req.body._id,
+				quantity: req.body.quantity,
+				productId: req.body._id,
+			});
+			await cart.save();
+			res.status(200).send({ status: 'success' });
+		} catch (err) {
+			res.status(400).send({ status: 'failure', error: err });
+			console.log('Error', err);
+		}
+	}
+});
+
+app.get('/cart', async function (req, res) {
+	try {
+		const carts = await Cart.find({});
+		const products = [];
+
+		for (item of carts) {
+			const cart = await Cart.findOne({
+				_id: item.id,
+			})
+				.populate('productId')
+				.exec();
+			products.push({
+				data: cart.productId,
+				quantity: cart.quantity,
+				status: 'sucess',
+			});
+		}
+
+		res.status(200).send(products);
+	} catch (err) {
+		console.log(err);
+		res.status(500).send({ error: err, status: 'failure' });
+	}
+});
+app.delete('/cart/:id', async (req, res) => {
+	try {
+		const id = req.params.id;
+		const item = await Cart.findOneAndDelete({
+			_id: id,
+		});
+		if (item) {
+			res.status(200).send({
+				status: 'sucess',
+				message: 'Item has been removed!',
+			});
+		} else {
+			throw new Error('No project found!');
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(400).json({ error: err.message, status: 'failure' });
+	}
+});
+
+app.put('/wishlist/product/add', function (req, res) {
+	Product.findOne({ _id: req.body.productId }, function (error, product) {
 		if (error) {
-			response
-				.status(500)
-				.send({ error: 'Could not add item to wishlist' });
+			res.status(500).send({
+				error: 'Could not add item to wishlist',
+				status: 'failure',
+			});
 		} else {
 			WishList.update(
-				{ _id: request.body.wishListId },
+				{ _id: req.body.wishListId },
 				{ $addToSet: { products: product._id } },
 				function (error, wishList) {
 					if (error) {
-						response.status(500).send({
+						res.status(500).send({
 							error: 'Could not add item to the wishlists',
+							status: 'failure',
 						});
 					} else {
-						response.send('Successfully added to wishlist');
+						res.send({
+							status: 'sucess',
+							message: 'Successfully added to wishlist',
+						});
 					}
 				}
 			);
@@ -72,41 +165,46 @@ app.put('/wishlist/product/add', function (request, response) {
 	});
 });
 
-app.get('/wishlists', function (request, response) {
+app.get('/wishlists', function (req, res) {
 	WishList.find({})
 		.populate({ path: 'products', model: 'Product' })
 		.exec(function (error, wishLists) {
 			if (error) {
-				response
-					.status(500)
-					.send({ error: 'Could not fetch the wishlists' });
+				res.status(500).send({
+					error: 'Could not fetch the wishlists',
+					status: 'failure',
+				});
 			} else {
-				response.status(200).send(wishLists);
+				res.status(200).send(wishLists);
 			}
 		});
 });
 
-app.put('/products/:productId', function (request, response) {
-	const productId = request.params.productId;
-	const newText = request.body.text;
+app.put('/products/:productId', function (req, res) {
+	const productId = req.params.productId;
+	const newText = req.body.text;
 	if (!newText || newText === '') {
-		response
-			.status(500)
-			.send({ error: 'You must provide ingredient text' });
+		res.status(500).send({
+			error: 'You must provide ingredient text',
+			status: 'failure',
+		});
 	} else {
 		const objectFound = false;
 		for (const x = 0; x < ingredients.length; x++) {
 			const ing = ingredients[x];
-			if (ing.id === request.params.productId) {
+			if (ing.id === req.params.productId) {
 				ingredients[x].text = newText;
 				objectFound = true;
 				break;
 			}
 		}
 		if (!objectFound) {
-			response.status(500).send({ error: 'Ingredient not found' });
+			res.status(500).send({
+				error: 'Ingredient not found',
+				status: 'failure',
+			});
 		}
-		response.send(ingredients);
+		res.send(ingredients);
 	}
 });
 
