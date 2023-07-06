@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', 'http://localhost:3004');
+	res.header('Access-Control-Allow-Origin', 'http://localhost:3010');
 	next();
 });
 
@@ -37,7 +37,7 @@ app.get('/products', function (req, res) {
 				error: 'Could not fetch the product',
 			});
 		} else {
-			res.status(200).send(products);
+			res.status(200).send({ data: products, status: 'sucess' });
 		}
 	});
 });
@@ -58,30 +58,51 @@ app.get('/cart/size', async (req, res) => {
 });
 
 app.post('/cart', async function (req, res) {
-	const item = await Cart.findOne({ _id: req.body._id });
+	const productId = req.body.productId;
+	const ownerId = req.body.ownerId;
+	const quantity = req.body.quantity;
 
-	if (item) {
-		const preQuantity = item.quantity;
-		item.quantity = preQuantity + req.body.quantity;
-		try {
-			const dat = await Cart.updateOne(
-				{ _id: req.body._id },
-				{ quantity: req.body.quantity }
-			);
-			res.status(201).send({ status: 'sucess' });
-		} catch (err) {
-			console.log(err);
-			res.status(500).send({
-				status: 'failure',
-				error: err.message,
-			});
+	const cart = await Cart.findOne({ owner: ownerId });
+
+	if (cart) {
+		let existingProduct;
+		for (const item of cart.products) {
+			if (item._id === productId) {
+				const preQuantity = item.quantity;
+				item.quantity = preQuantity + quantity;
+				existingProduct = item;
+			}
+		}
+		if (!existingProduct) {
+			existingProduct = { quantity, productId };
+		}
+		const products = cart.products.filter(
+			(product) => product._id !== productId
+		);
+
+		const dat = await Cart.updateOne(
+			{ owner: ownerId },
+			{
+				$push: {
+					products: {
+						$each: [...products, existingProduct],
+					},
+				},
+			}
+		);
+
+		if (dat) {
+			return res.status(201).send({ status: 'sucess' });
+		} else {
+			return res.status(300).send({ status: 'error' });
 		}
 	} else {
 		try {
-			const cart = await new Cart({
-				_id: req.body._id,
-				quantity: req.body.quantity,
-				productId: req.body._id,
+			const cart = await Cart.create({
+				owner: ownerId,
+				products: [
+					{ quantity: req.body.quantity, productId: req.body._id },
+				],
 			});
 			await cart.save();
 			res.status(200).send({ status: 'success' });
@@ -94,7 +115,7 @@ app.post('/cart', async function (req, res) {
 
 app.get('/cart', async function (req, res) {
 	try {
-		const carts = await Cart.find({});
+		const carts = await Cart.find({ owner: req.user._id });
 		const products = [];
 
 		for (item of carts) {
@@ -208,6 +229,6 @@ app.put('/products/:productId', function (req, res) {
 	}
 });
 
-app.listen(3004, function () {
-	console.log('Server is  running on http://localhost:3004');
+app.listen(3010, function () {
+	console.log('Server is  running on http://localhost:3010');
 });

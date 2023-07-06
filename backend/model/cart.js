@@ -2,25 +2,36 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const cartSchema = new Schema({
-	quantity: {
-		type: Number,
-		required: true,
-		validate: {
-			validator: (val) => {
-				if (val <= 0) {
-					return false;
-				}
-				return true;
-			},
-			message: (props) =>
-				`${props.value} is not a valid quantity! Quantity should be greater than 0,`,
-		},
-	},
-	productId: {
+	owner: {
 		type: mongoose.Schema.Types.ObjectId,
 		required: true,
-		ref: 'Product',
 	},
+
+	products: [
+		{
+			product: {
+				quantity: {
+					type: Number,
+					required: true,
+					validate: {
+						validator: (val) => {
+							if (val <= 0) {
+								return false;
+							}
+							return true;
+						},
+						message: (props) =>
+							`${props.value} is not a valid quantity! Quantity should be greater than 0,`,
+					},
+				},
+				productId: {
+					type: mongoose.Schema.Types.ObjectId,
+					required: true,
+					ref: 'Product',
+				},
+			},
+		},
+	],
 });
 
 cartSchema.pre('save', function (next) {

@@ -1,67 +1,71 @@
 import './Navigation.css';
 import { NavLink } from 'react-router-dom';
-import { useContext, useState } from 'react';
-import AuthContext from '../../store/auth-context';
 import React from 'react';
+import AuthContext from '../../store/auth-context';
+import CartContext from '../../store/cart-context';
+import { useContext } from 'react/cjs/react.development';
 
 const Navigation = (props) => {
 	const authContext = useContext(AuthContext);
-	const [size, setSize] = useState(0);
-	useState(() => {
-		const { size } = props;
-		setSize(size);
-	}, [size]);
-	console.log('Nav running');
+	const cartContext = useContext(CartContext);
 
+	const logoutHandler = () => {
+		authContext.on_logout();
+	};
 	return (
-		<nav className='nav' ref={props.cartBtn}>
-			<h1 className='nav__logoName'>CKart</h1>
-			<ul className='nav__list'>
-				<li className='nav__item'>
+		<nav className='nav'>
+			<h1 className='nav-logoName'>E-Kart</h1>
+			<ul className='nav-list'>
+				<li className='nav-item'>
 					<NavLink
 						to='/home'
-						className='nav__link'
-						activeClassName='nav__link__active'>
+						className='nav-link'
+						activeClassName='nav-link-active'>
 						Home
 					</NavLink>
 				</li>
-				<li className='nav__item'>
+				<li className='nav-item'>
 					<NavLink
 						to='/products'
-						className='nav__link'
-						activeClassName='nav__link__active'>
+						className='nav-link'
+						activeClassName='nav-link-active'>
 						Products
 					</NavLink>
 				</li>
-				<li className='nav__item'>
-					<NavLink
-						to='/login'
-						className='nav__link'
-						activeClassName='nav__link__active'>
-						Login
-					</NavLink>
-				</li>
-				{authContext.isAdmin && (
-					<li className='nav__item'>
+
+				{!authContext.is_authenticated && (
+					<li className='nav-item'>
 						<NavLink
-							to='/addProduct'
-							className='nav__link'
-							activeClassName='nav__link__active'>
-							Add Product
+							to='/login'
+							className='nav-link'
+							activeClassName='nav-link-active'>
+							Login
 						</NavLink>
 					</li>
 				)}
-				<li className='nav__item'>
-					<NavLink
-						to='/cart'
-						className='nav__link'
-						activeClassName='nav__link__active'>
-						<span className='nav__cartBtn__content'>Cart</span>
-						<span className='nav__cartBtn__itemNum'>
-							{props.size ? props.size : 0}
-						</span>
-					</NavLink>
-				</li>
+				{authContext.is_authenticated && (
+					<>
+						<li className='nav-item'>
+							<NavLink
+								to='/cart'
+								className='nav-link'
+								activeClassName='nav-link-active'>
+								Cart
+								{console.log(cartContext.size)}
+								{cartContext.size > 0 && (
+									<span className='nav-link--cartsize'>
+										{cartContext.size}
+									</span>
+								)}
+							</NavLink>
+						</li>
+						<li
+							className='nav-item nav-link'
+							onClick={logoutHandler}>
+							Logout
+						</li>
+					</>
+				)}
 			</ul>
 		</nav>
 	);

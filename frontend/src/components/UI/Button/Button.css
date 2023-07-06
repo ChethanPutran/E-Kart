@@ -1,6 +1,6 @@
 .btn {
 	display: inline-block;
-	padding: 7px 30px;
+	padding: .7rem;
 	outline: none;
 	border-radius: 10px;
 	color: #ffffff;
@@ -10,9 +10,11 @@
 	background: orange;
 	font-size: 1.6rem;
 }
+
 .btn:focus {
 	outline: none;
 }
+
 .btn:hover {
 	background-color: rgb(255, 136, 0);
 	color: rgb(255, 255, 255);
@@ -20,9 +22,11 @@
 	transform: translateY(-0.3rem);
 	box-shadow: 0.4rem 0.4rem 1rem rgba(0, 0, 0, 0.4);
 }
+
 .btn:focus {
 	transform: translateY(0.3rem);
 }
+
 .btn:disabled {
 	color: rgba(0, 0, 0, 0.4);
 	border: 1px solid rgba(0, 0, 0, 0.4) !important;

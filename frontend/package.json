@@ -2,7 +2,7 @@
 	"name": "react-tutes",
 	"version": "0.1.0",
 	"private": true,
-	"proxy": "http://localhost:3004",
+	"proxy": "http://localhost:3010",
 	"dependencies": {
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/react": "^11.2.7",

@@ -1,6 +1,6 @@
-import Backdrop from '../Backdrop/Backdrop';
+import Backdrop from '../backdrop/Backdrop';
 import ReactDOM from 'react-dom';
-import Card from '../Card/Card';
+import Card from '../card/Card';
 import { Fragment } from 'react';
 import './Modal.css';
 

@@ -1,17 +1,18 @@
 .app {
-	background: #fff;
+	background: rgb(43, 42, 42);
 	height: 100vh;
 	overflow-x: hidden;
 	overflow-y: auto;
 	font-size: 1.6rem;
 	width: 100%;
-	background: #fff;
 }
+
 .app__warning {
 	padding: 2rem;
 	margin-top: 2rem;
 	font-size: 2rem;
 }
+
 .loading {
 	position: absolute;
 	width: 100%;
